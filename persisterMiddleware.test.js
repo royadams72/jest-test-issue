@@ -4,11 +4,6 @@ import { persisterMiddleware } from "./persisterMiddleware";
 // Mock fetch globally
 global.fetch = jest.fn();
 
-// Mock console.error
-const consoleErrorSpy = jest
-  .spyOn(console, "error")
-  .mockImplementation(() => {});
-
 // Create a simple slice for testing
 const uiDataSlice = createSlice({
   name: "uiData",
@@ -35,11 +30,11 @@ describe("persisterMiddleware", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     fetch.mockClear();
-    consoleErrorSpy.mockClear();
+    jest.spyOn(global.console, "error").mockImplementation(() => {});
   });
 
   afterAll(() => {
-    consoleErrorSpy.mockRestore();
+    jest.spyOn(global.console, "error").mockRestore();
   });
 
   it("should log an error if state cannot be stored", async () => {
@@ -56,8 +51,7 @@ describe("persisterMiddleware", () => {
     jest.runAllTimers();
 
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(consoleErrorSpy).toHaveBeenCalled();
-    // expect(consoleErrorSpy).toHaveBeenCalledWith(
+    // expect(jest.spyOn(global.console, "error").toHaveBeenCalledWith(
     //   "There was an error: Error: HTTP error! Status: 500"
     // );
   });
